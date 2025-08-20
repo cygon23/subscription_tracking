@@ -24,19 +24,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters long"],
-      select: false, // prevents password from being returned in queries
+      select: true, // prevents password from being returned in queries
     },
   },
   { timestamps: true }
 );
 
 // Optionally, you can hash the password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const bcrypt = await import("bcrypt");
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
+// userSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) return next();
+//   const bcrypt = await import("bcrypt");
+//   this.password = await bcrypt.hash(this.password, 10);
+//   next();
+// });
 
 const User = mongoose.model("User", userSchema);
 
