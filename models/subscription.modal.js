@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const subscriptionSchema = new mongoose.Schema(
   {
     name: {
+      type: String,
+      required: [true, "Subscription name is required"],
       trim: true,
       minLength: 2,
       maxLength: 100,
@@ -34,7 +36,7 @@ const subscriptionSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["active", "cancelled", "expired"],
-      default: "activate",
+      default: "active",
     },
     startDate: {
       type: Date,
@@ -63,7 +65,7 @@ const subscriptionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-//Auto-calculate renewal data if missing
+//Auto-calculate renewal
 subscriptionSchema.pre("save", function (next) {
   if (!this.renewalDate) {
     const renewalPeriods = {
@@ -74,17 +76,19 @@ subscriptionSchema.pre("save", function (next) {
     };
 
     this.renewalDate = new Date(this.startDate);
-    this.renewalDate.startDate(
+    this.renewalDate.setDate(
       this.renewalDate.getDate() + renewalPeriods[this.frequency]
     );
   }
 
-  //Auto-update the status if renewal datae if passed
+  // Auto-update the status if renewal date is passed
   if (this.renewalDate < new Date()) {
     this.status = "expired";
   }
+
   next();
 });
+
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
 export default Subscription;
